@@ -21,4 +21,5 @@ Nombres, apellidos, y usuario GitHub de los integrantes del equipo:
 - Se incluirán validaciones en algunos campos (formato de email válido, DNI de usuarios no duplicados).
 - Las fecha de préstamo y devolución se tomarán del sistema.
 - Para las cadenas se usará la función GETS, que permitirá espacios dentro de la cadena.
-
+- Se utilizarán bucles repetitivos DO-WHILE, WHILE, FOR, para implementar los recorridos de las estructuras y las preguntas a hacer.
+- Se usarán sentencias de control como IF, IF-ELSE, para tomar decisiones según los valores introducidos.
