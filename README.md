@@ -1,5 +1,4 @@
-# Título del trabajo
-##Biblioteca ETSIDI-CEV##
+#Biblioteca ETSIDI-CEV#
 La idea del proyecto es crear un programa para la gestión de usuarios, gestión de préstamo y gestión de libros.
 
 ## Integrantes del equipo
