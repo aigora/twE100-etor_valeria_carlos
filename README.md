@@ -1,6 +1,5 @@
 ## Biblioteca ETSIDI-CEV ##
-La idea del proyecto es crear un programa para la gestión de usuarios, gestión de préstamo y gestión de libros.
-
+La idea del proyecto es crear un programa para la gestión de una biblioteca,con  Usuarios, Libros y Préstamos.
 ## Integrantes del equipo
 Nombres, apellidos, y usuario GitHub de los integrantes del equipo:
   Etor Gonzalez Perea - EtorGonzalezPerea,
