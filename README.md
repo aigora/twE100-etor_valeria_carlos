@@ -2,10 +2,9 @@
 La idea del proyecto es crear un programa para la gestión de una biblioteca,con  Usuarios, Libros y Préstamos.
 ## Integrantes del equipo
 Nombres, apellidos, y usuario GitHub de los integrantes del equipo:
-  Etor Gonzalez Perea - EtorGonzalezPerea,
-  Valeria Muñoz Salazar - Sarael444
-  Carlos Rodriguez Funes - CarlosRdgzFunes
-
+- Etor Gonzalez Perea - EtorGonzalezPerea,
+- Valeria Muñoz Salazar - Sarael444
+- Carlos Rodriguez Funes - CarlosRdgzFunes
 ## Objetivos del trabajo
 - Se realizará un programa en C para la gestión de una biblioteca, que permita:
  	- Gestionar Usuarios: Alta / Baja / Modificación de Usuarios, listado de Usuarios, búsqueda de Usuarios (que contengan una cadena en nombre o apellido).
