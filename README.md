@@ -11,7 +11,7 @@ Nombres, apellidos, y usuario GitHub de los integrantes del equipo:
 	- Gestionar Libros: Alta / Baja / Modificación de Libros, listado de Libros ordenados por varios campos, búsqueda de Libros.
 	- Gestionar Préstamos:  Realizar un préstamo,  realizar una devolución, consultar histórico de préstamos realidos a un Usuario, consultar historial de préstamos realizados de un Libro.
 - Todas las opciones anteriores se implementarán a través de funciones, en las que se pasarán los datos de las estructuras por referencia.
-- La funcion MAIN principal llamará a diferentes menus, implementados por medio de funciones.
+- La función MAIN principal llamará a diferentes menús, implementados por medio de funciones.
 - La selección de las opciones en los menús se realizará por bucles DO-WHILE y con un SWITCH-CASE dentro, hasta que se seleccione salir o volver al menú principal
 - Todos los datos se almacenarán en memoria en diferentes estructuras (usuario, libros, préstamos).  Cada estructura tendrá varios campos según se trate de un usuario, libro o préstamo.
 - Para poder mantener los datos entre sesiones, se volcarán a fichero cada vez que se de de alta un registro o se modifique.
@@ -21,3 +21,49 @@ Nombres, apellidos, y usuario GitHub de los integrantes del equipo:
 - Para las cadenas se usará la función GETS, que permitirá espacios dentro de la cadena.
 - Se utilizarán bucles repetitivos DO-WHILE, WHILE, FOR, para implementar los recorridos de las estructuras y las preguntas a hacer.
 - Se usarán sentencias de control como IF, IF-ELSE, para tomar decisiones según los valores introducidos.
+
+// Biblioteca ETSIDI-CEV
+// Etor, Valeria y Carlos
+
+
+#include <stdio.h>
+int main ()
+{
+
+//Introducción de las variables
+
+int n;
+char repetir;
+
+// Cuerpo del programa, en desarrollo
+
+
+// Encuesta para evaluar el servicio recibido
+puts("\250Desea participar en una encuesta para determinar la eficacia del servicio? Para participar, teclee 1,"
+"\nen caso contrario daremos por terminada la conversacion:   "); 
+scanf("%d",&n);
+  if (n==1)
+  {
+  	do
+	{
+		printf ("Teclee un numero entre 1 y 10 para valorar el servicio:    ");
+	    scanf ("%d", &n);
+		fflush(stdin);
+	
+		if ((n>1) && (n<10))  printf("\n\nGracias por su tiempo y por su valoracion", n);
+        if ((n<5) && (n>1)) printf("\n\nLamentamos que el servicio no haya sido de su agrado. Trataremos de mejorar", n);
+		else if (n<1 || n>10) printf("\n\nPor favor, teclee un numero comprendido entre 1 y 10", n);
+		
+		puts("\n\250Desea repetir la encuesta?   ");
+		scanf ("%c", &repetir);
+		fflush (stdin);  
+  	
+  		} while ((repetir == 's')||(repetir == 'S'));
+	
+	return 12345;
+  	}
+  else
+  {
+   printf ("Lamentamos que no quiera darnos una valoracion de nuestro trabajo. Gracias por usar nuestros servicios.");
+  }
+}
