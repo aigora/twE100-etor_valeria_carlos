@@ -611,3 +611,191 @@ void listado_usuarios_por_apellido(Usuario mis_usuarios[])
     system("pause");
 	
 }
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION GRABAR_USUARIOS_FICHERO                **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada cada vez que hay un alta, una modificación o una baja de usuarios, o bien se ha reordenado la estructura por algún criterio.
+// Lo anterior permite que en las siguientes sesiones, no se hayan perdido los cambios realizados con el programa.
+//
+void grabar_usuarios_fichero (Usuario mis_usuarios[])
+{   
+	// iContador se usa para hacer el recorrido al vector de la estractura de usuarios
+    int iContador;
+    // pFichero es el puntero a un fichero
+	FILE *pFichero;
+    	    
+	// Se abre el fichero en modo escritura
+	pFichero = fopen("Usuarios.txt","w");
+	
+	// Se controla si hay error al abrir el fichero...
+	if (pFichero == NULL)
+	{	
+		printf("\nError al abrir el fichero de Usuarios.\n");
+		system("pause");		
+	}
+	// tan solo en el caso de que la apertura haya sido correcta, escribe una fila en el fichero por cada usuario.
+	// Los campos se escriben separados por comas para poder leerlos correctamente con la función de leer_usuarios_fichero
+	else
+	{	
+		printf("\nFichero de Usuarios abierto correctamente.\n");
+		for(iContador = 0 ; (strcmp(mis_usuarios[iContador].DNI,"") !=0) ; iContador++)
+		{	
+			fprintf(pFichero, "%4d; %-11s; %-15s; %-25s; %-15s;\n", mis_usuarios[iContador].num_usuario, mis_usuarios[iContador].DNI, mis_usuarios[iContador].nombre, mis_usuarios[iContador].apellido, mis_usuarios[iContador].email);
+		}		
+	}
+	
+	// Se cierra el fichero
+	fclose(pFichero);      					
+
+}
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION LEER_USUARIOS_FICHERO                  **
+//**                                                       **
+//***********************************************************
+//
+// Esta función tan solo es invocada desde el MAIN para cargar inicialmente la estructura de USUARIOS con los datos grabados en fichero en sesiones anteriores.
+//
+// Se carga en un vector de estructura de USUARIOS el contenido del fichero.
+// Cada fila del fichero es un usuario.
+// Los campos están separados por el carácter ';' y por eso en el fscanf se busca con %[^;];
+// Cada registro leído es almacenado en el vector a estructura.
+// Se llama a la función 'eliminar_espacios', al que se le pasa por parámetro una cadena de caracteres y que elimina los espacios al final de la cadena (se crean al leer cada campo hasta el carácter ';'.
+//
+void leer_usuarios_fichero (Usuario mis_usuarios[])
+{   
+	// iContador se usa para el recorrido por el vector de estructura
+    int iContador;
+    // pFichero es el puntero a fichero
+	FILE *pFichero;
+
+	int num_usuario;
+    	    
+	// El fichero se abre para lectura    	    
+	pFichero = fopen("Usuarios.txt","r");
+	
+	// Si la apertura del fichero es incorrecta, muestra un mensaje
+	if (pFichero == NULL)
+	{	
+		printf("\nError al abrir el fichero de Usuarios.\n");
+		system("pause");		
+	}	
+	// Si el fichero se abre correctamente
+	else
+	{	
+		printf("\nFichero de Usuarios abierto correctamente.\n");
+		iContador = 0;
+		// Recorrido del fichero mientras que no se llegue al final
+		while ( !feof(pFichero) )
+		{
+			fscanf(pFichero, "%d; %[^;]; %[^;]; %[^;]; %[^;];\n", &num_usuario, mis_usuarios[iContador].DNI, mis_usuarios[iContador].nombre, mis_usuarios[iContador].apellido, mis_usuarios[iContador].email);		
+			mis_usuarios[iContador].num_usuario = num_usuario;
+			// Se llama a la función 'eliminar_espacios' por cada cadena de caracteres leída, para eliminar los espacios al final de la cadena.						
+			eliminar_espacios (mis_usuarios[iContador].DNI);
+			eliminar_espacios (mis_usuarios[iContador].nombre);
+			eliminar_espacios (mis_usuarios[iContador].apellido);
+			eliminar_espacios (mis_usuarios[iContador].email);														
+		
+			iContador++;
+		}		
+	}
+	       
+	// Se cierra el fichero	       
+	fclose(pFichero);      					
+
+}
+
+//***********************************************************
+//**                                                       **
+//**                  ELIMINAR ESPACIOS                    **
+//**                                                       **
+//***********************************************************
+// 
+// Esta función es invocada desde todas las funciones de lectura de ficheros: leer_usuarios_fichero, leer_libros_fichero y leer_prestamos_fichero.
+// También es invocada después de hacer FGETS porque se ha comprobado que a veces se inserta un \n al final de la cadena de caracteres
+//
+// Se utiliza para eliminar los caracteres o espacios en blanco al final de una cadena de caracteres que se pasa por parámetro.
+// Es necesaria porque al leer las cadenas de caracteres, en lugar de hacerlo por '%s', se hace buscando el carácter ';' como fin de cadena, por lo que se añaden espacios a la cadena leída.
+// También eliminar todos los '\n' de la cadena de caracteres.
+//
+void eliminar_espacios (char sLiteral[])
+{   
+    int iLongitud;
+    int iContador;
+    
+    // Se comienza el recorrido desde el final de la cadena
+	iLongitud=strlen(sLiteral);
+	
+	// recorrido de la cadena de caracteres para eliminar los cambios de línea (se pueden introducir con fgets)
+	for(iContador = 0; (iContador<iLongitud); iContador++)
+		if (sLiteral[iContador]=='\n')
+			sLiteral[iContador]='\0';	
+
+	// mientras no se llegue al principio de la cadena y haya espacios en blanco, pone el carácter '\0' en dicha posición (indicando final de cadena y "borrando" el espacio sobrante).
+	for(iContador = iLongitud-1; (iContador>0 && sLiteral[iContador]==' '); iContador--)
+		sLiteral[iContador]='\0';
+	
+	
+}
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION ORDENAR_USUARIOS                       **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde LISTADO_USUARIOS_APELLIDO con el objetivo de ordenar el vector de estructura de USUARIOS por el campo 'apellido'
+//
+// Se utiliza el método de la burbuja (sacado de INTERNET), que aunque es un poco más lento que otros, es el más sencillo de implementar.
+//
+void ordenar_usuarios (Usuario mis_usuarios[])
+{
+	
+	int iNumRegistros;
+	// Se necesita una variable temporal en la que almacenar el valor de una cadena de caracteres, mientras que intercambian los valores de 2 registros
+	char tmp[100];
+	int num_tmp;
+    
+    // Recorrido de la estructura de USUARIOS para determinar el número de registros
+	for(iNumRegistros = 0 ; (strcmp(mis_usuarios[iNumRegistros].DNI,"") !=0) ; iNumRegistros++);
+	
+	int i, j;
+	
+	// El algoritmo de la burbuja hace un recorrido anidado de FOR para intercambiar 2 registros si alfabéticamente un valor es mayor que otro
+	for(i=0; i<iNumRegistros-1; i++)
+	{
+		for(j=i+1; j<iNumRegistros; j++)
+		{
+			// Solo se intercambian los 2 registros si el 'i' es mayor alfabéticamente que el 'j'
+			if(strcmp(mis_usuarios[i].apellido, mis_usuarios[j].apellido) > 0)
+			{
+				// En caso de intercambio de registros, se deben intercambiar TODOS los campos de estrctura: num_usuario, DNI, nombre, apellido, email
+				num_tmp = mis_usuarios[i].num_usuario;
+				mis_usuarios[i].num_usuario = mis_usuarios[j].num_usuario;
+				mis_usuarios[j].num_usuario = num_tmp;
+				strcpy (tmp, mis_usuarios[i].DNI);
+				strcpy (mis_usuarios[i].DNI, mis_usuarios[j].DNI);
+				strcpy (mis_usuarios[j].DNI, tmp);
+				strcpy (tmp, mis_usuarios[i].nombre);
+				strcpy (mis_usuarios[i].nombre, mis_usuarios[j].nombre);
+				strcpy (mis_usuarios[j].nombre, tmp);
+				strcpy (tmp, mis_usuarios[i].apellido);
+				strcpy (mis_usuarios[i].apellido, mis_usuarios[j].apellido);
+				strcpy (mis_usuarios[j].apellido, tmp);
+				strcpy (tmp, mis_usuarios[i].email);
+				strcpy (mis_usuarios[i].email, mis_usuarios[j].email);
+				strcpy (mis_usuarios[j].email, tmp);
+			}
+		}
+	}		
+
+}
+
