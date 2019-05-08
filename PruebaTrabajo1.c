@@ -1684,3 +1684,217 @@ void modificacion_libros(Libro mis_libros[], Prestamo mis_prestamos[])
 	
 }  		   
 
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION BAJA_LIBROS                            **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_LIBROS
+//
+// Da de baja un libro del vector de estructura de LIBROS
+//
+// Realiza los siguientes pasos:
+//   1) Invoca la función 'busqueda_libros' para mostrar todos los libros que cumplan una condiciones (titulo, genero o autor contiene un literal introducido por teclado)
+//   2) Solo se puede eliminar un registro si la función 'busqueda_libros' ha devuelto valor 0, que significa que hay al menos un registro que cumple la condición de búsqueda
+//       2.a) Recorrido de la estructura de LIBROS para determinar el número de registros.
+//       2.b) Bucle DO-WHILE para pedir el número de registro a eliminar --> no finaliza el bucle hasta que no se introduce un libro existente en LIBROS
+//       2.c) Recorrido de la estructura de préstamos.  Si encuentra el libro, no se podrá eliminar el registro
+//       2.d) Si no se encuentra el libro en prestamos, se puede borrar.
+//       2.e.) Pide confirmación por teclado.  El registro solo se borra si se contesta 's'.
+//
+void baja_libros(Libro mis_libros[], Prestamo mis_prestamos[])
+{   
+	// iRegistroBuscado se usa para indicar el índice del vector del usuario a eliminar
+	// iMaxRegistros se usa para contabilizar el número máximo de usuarios en el vector de la estructura
+	// iContadorPrestamo se usa para el recorrido por el vector de prestamos --> ver si el usuario ya tiene prestamos y evitar que se pueda eliminar
+	// iContador se usa para el recorrido de eliminación del registro, desde iRegistroBuscado hasta iMaxRegistros
+    int iRegistroBuscado, iMaxRegistros, iContador, iContadorPrestamo;
+	int num_libro;
+	// cSeguro se usa para confirmar si se borra el usuario una vez seleccionado	
+	char cSeguro;
+	// iResultado se usa para recoger el valor devuelto por 'busqueda_usuarios'.  Valor = 0 significa que hay al menos un registro que cumple con condición, valor = 1 en caso contrario	
+	int iResultado;
+
+	// Invoca la función 'busqueda_libros' para mostrar todos los libros que cumplan una condicion (titulo, genero o autor contiene un literal introducido por teclado)		
+	iResultado = busqueda_libros(mis_libros);	
+	
+	// tan solo se borra un registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+	
+	    // Recorrido de la estructura de LIBROS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_libros[iMaxRegistros].ISBN,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a borrar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Libro a eliminar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_libro);
+    		printf("\n");
+ 	
+ 			// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iRegistroBuscado = 0 ; (mis_libros[iRegistroBuscado].num_libro != num_libro) && (iRegistroBuscado <= iMaxRegistros ); iRegistroBuscado++);
+			// No existe el registro si hemos llegado al final del recorrido...			
+			if (iRegistroBuscado > iMaxRegistros)
+				printf("\nNo existe el registro %d.\n\n", num_libro);				
+		
+		} while (iRegistroBuscado > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro
+
+		// recorre la estructura de préstamos.  Si encuentra el libro, no se podrá modificar su ISBN (el resto de campos sí).
+		for(iContadorPrestamo = 0 ; (strcmp(mis_prestamos[iContadorPrestamo].ISBN, "") != 0) && (strcmp(mis_prestamos[iContadorPrestamo].ISBN, mis_libros[iRegistroBuscado].ISBN) !=0) ; iContadorPrestamo++);
+
+		// Mensaje indicando que no se puede eliminar el libro en caso de que se haya encontrado el ISBN en la estructura de prestamos			
+		if (strcmp(mis_prestamos[iContadorPrestamo].ISBN, mis_libros[iRegistroBuscado].ISBN) ==0)
+		{
+			printf("\nNo se puede eliminar el Libro porque tiene Prestamos.\n\n");
+		}
+		// si no se ha encontrado el registro, puede borrarse...		
+		else
+		{
+			// Pide confirmación antes de borrar el registro
+			// Bucle DO-WHILE mientras se conteste algo diferentes de 's' o 'n'			
+			do {
+				printf("\n%4d %-11s %-35s %-20s %-35s", mis_libros[iRegistroBuscado].num_libro, mis_libros[iRegistroBuscado].ISBN, mis_libros[iRegistroBuscado].titulo, mis_libros[iRegistroBuscado].genero, mis_libros[iRegistroBuscado].autor);
+				printf("\n\nSe va a proceder a borrar el registro anterior.  Esta seguro? (s/n) ");
+	    		fflush(stdin);        	
+	    		scanf("%c", &cSeguro);
+	    		printf("\n");
+		
+			} while (cSeguro != 's' && cSeguro != 'n');
+		
+			// Solo se borra el registro si se ha confirmado con 's'
+			if (cSeguro == 's')
+			{
+				// El borrado del registro consiste en hacer un recorrido en MIS_LIBROS desde el registro a buscar, y poniendo los valores del siguiente libro				
+				for(iContador = iRegistroBuscado ; (strcmp(mis_libros[iContador].ISBN,"") !=0) ; iContador++)
+				{	
+					// cada uno de los 5 campos del estructura de LIBROS se machaca con el valor del siguiente registro
+					mis_libros[iContador].num_libro = mis_libros[iContador+1].num_libro;
+					strcpy (mis_libros[iContador].ISBN, mis_libros[iContador+1].ISBN);
+					strcpy (mis_libros[iContador].titulo, mis_libros[iContador+1].titulo);
+					strcpy (mis_libros[iContador].genero, mis_libros[iContador+1].genero);
+					strcpy (mis_libros[iContador].autor, mis_libros[iContador+1].autor);
+				}	
+			
+				// Al borrar un Libro hay que renumerar los números de registro para evitar que queden números no consecutivos
+				// num_libro es un número único dentro del vector de LIBROS.  Se usa en las búsquedas de libros, para seleccionar el registro que se va a modificar o eliminar				
+				for(iContador = 0 ; (strcmp(mis_libros[iContador].ISBN,"") !=0) ; iContador++)
+					mis_libros[iContador].num_libro = iContador;
+				printf("\nEl Libro ha sido eliminado correctamente.\n\n");				
+			}
+			else
+				printf("\nEl Libro no ha sido eliminado.\n\n");
+	
+		}	
+	} 
+ 
+	system("pause");    
+		
+}
+ 
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION LEER_PRESTAMOS_FICHERO                 **
+//**                                                       **
+//***********************************************************
+//
+// Esta función tan solo es invocada desde el MAIN para cargar inicialmente la estructura de PRESTAMOS con los datos grabados en fichero en sesiones anteriores.
+//
+// Se carga en un vector de estructura de PRESTAMOS el contenido del fichero.
+// Cada fila del fichero es un préstamo.
+// Los campos están separados por el carácter ';' y por eso en el fscanf se busca con %[^;];
+// Cada registro leído es almacenado en el vector a estructura.
+// Se llama a la función 'eliminar_espacios', al que se le pasa por parámetro una cadena de caracteres y que elimina los espacios al final de la cadena (se crean al leer cada campo hasta el carácter ';'.
+//
+void leer_prestamos_fichero (Prestamo mis_prestamos[])
+{   
+	// iContador se usa para el recorrido por el vector de estructura
+    int iContador;
+    // pFichero es el puntero a fichero    
+	FILE *pFichero;
+
+	int num_prestamo;
+    	    
+	// El fichero se abre para lectura      	    
+	pFichero = fopen("Prestamos.txt","r");
+
+	// Si la apertura del fichero es incorrecta, muestra un mensaje		
+	if (pFichero == NULL)
+	{	
+		printf("\nError al abrir el fichero de Prestamos.\n");
+		system("pause");		
+	}	
+	// Si el fichero se abre correctamente
+	else
+	{	
+		printf("\nFichero de Prestamos abierto correctamente.\n");
+		iContador = 0;
+		// Recorrido del fichero mientras que no se llegue al final	
+		while ( !feof(pFichero) )
+		{
+			fscanf(pFichero, "%d; %[^;]; %[^;]; %[^;]; %[^;];\n", &num_prestamo, mis_prestamos[iContador].DNI, mis_prestamos[iContador].ISBN, mis_prestamos[iContador].fecha_prestamo, mis_prestamos[iContador].fecha_devolucion);		
+			mis_prestamos[iContador].num_prestamo = num_prestamo;
+			// Se llama a la función 'eliminar_espacios' por cada cadena de caracteres leída, para eliminar los espacios al final de la cadena.						
+			eliminar_espacios (mis_prestamos[iContador].DNI);
+			eliminar_espacios (mis_prestamos[iContador].ISBN);
+			eliminar_espacios (mis_prestamos[iContador].fecha_prestamo);
+			eliminar_espacios (mis_prestamos[iContador].fecha_devolucion);														
+		
+			iContador++;
+		}		
+	}
+	 
+	// Se cierra el fichero      
+	fclose(pFichero);      					
+
+}
+
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION GRABAR_PRESTAMOS_FICHERO               **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada cada vez que hay préstamos o una devolución de un libro, o bien se ha reordenado la estructura por algún criterio.
+// Lo anterior permite que en las siguientes sesiones, no se hayan perdido los cambios realizados con el programa.
+//
+void grabar_prestamos_fichero (Prestamo mis_prestamos[])
+{   
+	// iContador se usa para hacer el recorrido al vector de la estractura de usuarios
+    int iContador;
+    // pFichero es el puntero a un fichero        
+	FILE *pFichero;
+    	    
+	// Se abre el fichero en modo escritura
+	pFichero = fopen("Prestamos.txt","w");
+	
+	// Se controla si hay error al abrir el fichero...		
+	if (pFichero == NULL)
+	{	
+		printf("\nError al abrir el fichero de Prestamos.\n");
+		system("pause");		
+	}
+	// tan solo en el caso de que la apertura haya sido correcta, escribe una fila en el fichero por cada usuario.
+	// Los campos se escriben separados por comas para poder leerlos correctamente con la función de leer_usuarios_fichero	
+	else
+	{	
+		printf("\nFichero de Prestamos abierto correctamente.\n");
+		for(iContador = 0 ; (strcmp(mis_prestamos[iContador].DNI,"") !=0) ; iContador++)
+		{	
+			fprintf(pFichero, "%4d; %-11s; %-15s; %-25s; %-15s;\n", mis_prestamos[iContador].num_prestamo, mis_prestamos[iContador].DNI, mis_prestamos[iContador].ISBN, mis_prestamos[iContador].fecha_prestamo, mis_prestamos[iContador].fecha_devolucion);
+		}		
+	}
+
+	// Se cierra el fichero		
+	fclose(pFichero);      					
+
+}
+
