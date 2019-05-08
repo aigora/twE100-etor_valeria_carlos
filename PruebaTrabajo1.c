@@ -1392,3 +1392,295 @@ void ordenar_libros_titulo (Libro mis_libros[])
 	}		
 
 }
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION ORDENAR_LIBROS_AUTOR                   **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde LISTADO_LIBROS_ORDENADO con el objetivo de ordenar el vector de estructura de LIBROS por el campo 'titulo'
+//
+// Se utiliza el método de la burbuja (sacado de INTERNET), que aunque es un poco más lento que otros, es el más sencillo de implementar.
+//
+void ordenar_libros_autor (Libro mis_libros[])
+{
+	
+	int iNumRegistros;
+	// Se necesita una variable temporal en la que almacenar el valor de una cadena de caracteres, mientras que intercambian los valores de 2 registros		
+	char tmp[100];
+	int num_tmp;
+    
+    // Recorrido de la estructura de LIBROS para determinar el número de registros
+	for(iNumRegistros = 0 ; (strcmp(mis_libros[iNumRegistros].ISBN,"") !=0) ; iNumRegistros++);
+	
+	int i, j;
+	
+	// El algoritmo de la burbuja hace un recorrido anidado de FOR para intercambiar 2 registros si alfabéticamente un valor es mayor que otro		
+	for(i=0; i<iNumRegistros-1; i++)
+	{
+		for(j=i+1; j<iNumRegistros; j++)
+		{
+			// Solo se intercambian los 2 registros si el 'i' es mayor alfabéticamente que el 'j'
+			if(strcmp(mis_libros[i].autor, mis_libros[j].autor) > 0)
+			{
+				// En caso de intercambio de registros, se deben intercambiar TODOS los campos de estrctura: num_libro, ISBN, titulo, genero, autor				
+				num_tmp = mis_libros[i].num_libro;
+				mis_libros[i].num_libro = mis_libros[j].num_libro;
+				mis_libros[j].num_libro = num_tmp;
+				strcpy (tmp, mis_libros[i].ISBN);
+				strcpy (mis_libros[i].ISBN, mis_libros[j].ISBN);
+				strcpy (mis_libros[j].ISBN, tmp);
+				strcpy (tmp, mis_libros[i].titulo);
+				strcpy (mis_libros[i].titulo, mis_libros[j].titulo);
+				strcpy (mis_libros[j].titulo, tmp);
+				strcpy (tmp, mis_libros[i].genero);
+				strcpy (mis_libros[i].genero, mis_libros[j].genero);
+				strcpy (mis_libros[j].genero, tmp);
+				strcpy (tmp, mis_libros[i].autor);
+				strcpy (mis_libros[i].autor, mis_libros[j].autor);
+				strcpy (mis_libros[j].autor, tmp);
+			}
+		}
+	}		
+
+}
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION ORDENAR_LIBROS_GENERO                  **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde LISTADO_LIBROS_ORDENADO con el objetivo de ordenar el vector de estructura de LIBROS por el campo 'titulo'
+//
+// Se utiliza el método de la burbuja (sacado de INTERNET), que aunque es un poco más lento que otros, es el más sencillo de implementar.
+//
+void ordenar_libros_genero (Libro mis_libros[])
+{
+	
+	int iNumRegistros;
+	// Se necesita una variable temporal en la que almacenar el valor de una cadena de caracteres, mientras que intercambian los valores de 2 registros		
+	char tmp[100];
+	int num_tmp;
+    
+    // Recorrido de la estructura de LIBROS para determinar el número de registros
+	for(iNumRegistros = 0 ; (strcmp(mis_libros[iNumRegistros].ISBN,"") !=0) ; iNumRegistros++);
+	
+	int i, j;
+	
+	// El algoritmo de la burbuja hace un recorrido anidado de FOR para intercambiar 2 registros si alfabéticamente un valor es mayor que otro		
+	for(i=0; i<iNumRegistros-1; i++)
+	{
+		for(j=i+1; j<iNumRegistros; j++)
+		{
+			// Solo se intercambian los 2 registros si el 'i' es mayor alfabéticamente que el 'j'
+			if(strcmp(mis_libros[i].genero, mis_libros[j].genero) > 0)
+			{
+				// En caso de intercambio de registros, se deben intercambiar TODOS los campos de estrctura: num_libro, ISBN, titulo, genero, autor				
+				num_tmp = mis_libros[i].num_libro;
+				mis_libros[i].num_libro = mis_libros[j].num_libro;
+				mis_libros[j].num_libro = num_tmp;
+				strcpy (tmp, mis_libros[i].ISBN);
+				strcpy (mis_libros[i].ISBN, mis_libros[j].ISBN);
+				strcpy (mis_libros[j].ISBN, tmp);
+				strcpy (tmp, mis_libros[i].titulo);
+				strcpy (mis_libros[i].titulo, mis_libros[j].titulo);
+				strcpy (mis_libros[j].titulo, tmp);
+				strcpy (tmp, mis_libros[i].genero);
+				strcpy (mis_libros[i].genero, mis_libros[j].genero);
+				strcpy (mis_libros[j].genero, tmp);
+				strcpy (tmp, mis_libros[i].autor);
+				strcpy (mis_libros[i].autor, mis_libros[j].autor);
+				strcpy (mis_libros[j].autor, tmp);
+			}
+		}
+	}		
+
+}
+
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION BUSQUEDA_LIBROS                        **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_LIBROS, MODIFICACION_LIBROS, BORRADO_LIBROS, PRESTAMO_LIBRO, DEVOLUCION_LIBRO, CONSULTA_PRESTAMOS_USUARIO
+// Su objetivo es mostrar todos los registros que cumplan una determinada condición, para poderlo seleccionar (para una modificación o borrado) o simplemente por verlos en pantalla
+//
+// Se solicita un texto que será buscado como parte del titulo, genero o autor del LIBRO.
+// Se hace un recorrido del vector de la estructura de LIBROS
+// En caso de que exista coincidencia, imprime el registro --> se usa la función 'strstr' de la librería <string.h>, que buscar un literal dentro de una cadena de caracteres (trozo o palabra completa)
+//
+int busqueda_libros(Libro mis_libros[])
+{   
+	// iEncontrado se usua par indicar si hay al menos un registro que cumpla con la condición de búsqueda.  Si se ha encontrado, iEncontrado = 1, en caso contrario iEncontrado = 0
+    int iContador, iEncontrado;
+    // sLiteral es el nombre de la cadena a buscar dentro de titulo, genero o autor
+	char sLiteral[100];
+    	
+	system("cls");
+	printf("\n__________________BIBLIOTECA DE LA ETSIDI__________________________\n\n");		
+	printf("\n____________________BUSQUEDA DE LIBROS_____________________________\n\n");
+    printf("\nIntroduzca el literal del Libro a buscar (por titulo, por genero o por autor): ");
+    fflush(stdin);        	
+    scanf("%s",sLiteral);
+    printf("\n");
+ 
+  	// Inicialmente no se ha encontrado ningún reigstro
+ 	iEncontrado = 0;
+
+ 	// Recorrido del vector de la estructura LIBROS... 
+	for(iContador = 0 ; (strcmp(mis_libros[iContador].ISBN,"") !=0) ; iContador++)
+	{
+		// Si se encuentra el literal en el campo 'titulo', 'genero' o 'autor'		
+		if ( (strstr(mis_libros[iContador].titulo,sLiteral) != NULL) || (strstr(mis_libros[iContador].genero,sLiteral) != NULL) || (strstr(mis_libros[iContador].autor,sLiteral) != NULL) )
+		{
+			// Se indica que se ha encontrado al menos un registro			
+			iEncontrado ++;
+			// la cabecera solo se imprime la primera vez			
+			if (iEncontrado == 1)
+			{
+				printf("\n   # %-11s %-35s %-20s %-35s","ISBN", "TITULO","GENERO", "AUTOR");
+				printf("\n   _ ____        ______                              ______               _____\n");				
+			}
+			// se imprimen todos los datos del libro			
+			printf("\n%4d %-11s %-35s %-20s %-35s", mis_libros[iContador].num_libro, mis_libros[iContador].ISBN, mis_libros[iContador].titulo, mis_libros[iContador].genero, mis_libros[iContador].autor);
+		}
+	}					
+	printf("\n");
+	
+	// se devuelve valor 1 a la función que lo llama (modificación o borrado de libro) en caso de no haber encontrado ningún registro que cumpla con la condición	
+	if (iEncontrado == 0)
+	{
+		printf("\nNo hay Libros que cumplan la condicion.\n\n");
+		return 1;
+	}
+	// en caso contrario (se ha encontrado al menos un registro), se devuelve valor 0
+	else
+	{
+		printf("\n");
+		return 0;
+	}
+		
+}
+
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION MODIFICACION_LIBROS                    **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_LIBROS
+//
+// Permite la modificación de los datos de un usuario (cualquiera de los datos) con las siguientes restricciones:
+//   1) No se puede modificar el campo ISBN de un libro si ya ha sido prestado (vigente o caducado)
+//
+// Pasos a seguir:
+//   1) Invocar a la función 'busqueda_libros', que muestra por pantalla todos los libros que cumplan con una condición (titulo, genero o autor contiene el literal pedido por pantalla)
+//   2) Solo se permite modificar los datos de un registro si la función 'busqueda_libros' devuelve un 0 (cuando se ha encontrado al menos un registro que cumple la condición
+//      2.a) Recorrido de la estructura de LIBROS para determinar el número de registros
+//      2.b) Bucle DO-WHILE para solicitar un número de registro (num_libro) que exista  --> Si  no se encuentra, muestra mensaje y se vuelve a pedir el número de libro
+//      2.c) Recorre la estructura de préstamos.  Si encuentra el libro, no se podrá modificar su ISBN (el resto de campos sí).
+//
+// A tener en cuenta:
+//      1) Al modificar el ISBN, se comprueba que no coincida con el de otro libro (ISBN es campo único) --> DO-WHILE para solicitarlo hasta que no coincida con ninguno
+//      2) Al modificar cualquier campo, si no se introduce nada (se pulta RETURN), no se modifica el valor del campo que tenía previamente
+//
+void modificacion_libros(Libro mis_libros[], Prestamo mis_prestamos[])
+{   
+    int iContador, iContador2, iMaxRegistros, iContadorPrestamo;
+	char sTemporal[100];
+	int num_libro;
+	int iResultado;
+
+	// Invoca a la función 'busqueda_libros', que muestra por pantalla todos los libros que cumplan con una condición (titulo, genero o autor contiene el literal pedido por pantalla)		
+	iResultado = busqueda_libros(mis_libros);
+	
+	// tan solo se modifica un registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+	    // Recorrido de la estructura de LIBROS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_libros[iMaxRegistros].ISBN,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a modificar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Libro a modificar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_libro);
+    		printf("\n");
+ 	
+ 			// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iContador = 0 ; (mis_libros[iContador].num_libro != num_libro) && (iContador <= iMaxRegistros ); iContador++);
+			if (iContador > iMaxRegistros)
+				printf("\nNo existe el registro %d.\n\n", num_libro);				
+		
+		} while (iContador > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro
+		
+		// recorre la estructura de préstamos.  Si encuentra el libro, no se podrá modificar su ISBN (el resto de campos sí).
+		for(iContadorPrestamo = 0 ; (strcmp(mis_prestamos[iContadorPrestamo].ISBN, "") != 0) && (strcmp(mis_prestamos[iContadorPrestamo].ISBN, mis_libros[iContador].ISBN) !=0) ; iContadorPrestamo++);
+
+		// Mensaje diciendo que no se puede modificar el ISBN en caso que se haya prestado el libro previamente		
+		if (strcmp(mis_prestamos[iContadorPrestamo].ISBN, mis_libros[iContador].ISBN) ==0)
+		{
+			printf("\nNo se puede modificar el campo ISBN porque el Libro ya tiene Prestamos.\n\n");
+		}
+		else
+		{
+			// bucle DO-WHILE para verificar que no se duplica el ISBN (no se puede repetir)
+	    	do
+			{	
+	    		printf("Numero de ISBN (actual %s): ", mis_libros[iContador].ISBN);
+	    		fflush(stdin);
+    			fgets(sTemporal, 11, stdin);
+    			eliminar_espacios (sTemporal);	
+	 	 		// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+				for(iContador2 = 0 ; ( (strcmp(mis_libros[iContador2].ISBN, sTemporal)!=0) && (iContador2 <= iMaxRegistros ) ); iContador2++);
+				if (iContador2 <= iMaxRegistros && strcmp(sTemporal,"") !=0 )
+					printf("\nEl ISBN %s corresponde a otro Libro existente (no puede haber duplicados).\n\n", mis_libros[iContador2].ISBN);
+			} while ( iContador2 <= iMaxRegistros && strcmp(sTemporal,"") !=0 );
+	    	if (strcmp(sTemporal,"") !=0)		
+				strcpy (mis_libros[iContador].ISBN, sTemporal);
+		}
+ 
+     
+		printf("Titulo del Libro (actual %s): ", mis_libros[iContador].titulo);
+		// Se almacena en 'sTemporal' el valor que tenía previamente este campo		
+    	strcpy(sTemporal, mis_libros[iContador].titulo);
+    	fflush(stdin);
+    	fgets(mis_libros[iContador].titulo, 35, stdin);
+    	eliminar_espacios (mis_libros[iContador].titulo);	
+      	// si no se ha introducido nada por teclado, restaura el valor que tenía antes (lo que está en 'sTemporal')    	
+    	if (strcmp(mis_libros[iContador].titulo,"") ==0)
+    		strcpy(mis_libros[iContador].titulo, sTemporal);
+	        
+	    printf("Genero del Libro (actual %s): ", mis_libros[iContador].genero);
+    	strcpy(sTemporal, mis_libros[iContador].genero);
+    	fflush(stdin);
+    	fgets(mis_libros[iContador].genero, 20, stdin);
+    	eliminar_espacios (mis_libros[iContador].genero);
+    	if (strcmp(mis_libros[iContador].genero,"") ==0)
+        	strcpy(mis_libros[iContador].genero, sTemporal);       
+              
+    	printf ("Autor del Libro (actual %s): ", mis_libros[iContador].autor);
+    	strcpy(sTemporal, mis_libros[iContador].autor);
+    	fflush(stdin);
+    	fgets(mis_libros[iContador].autor, 35, stdin); 
+		eliminar_espacios (mis_libros[iContador].autor);   	
+     	if (strcmp(mis_libros[iContador].autor,"") ==0)
+        	strcpy(mis_libros[iContador].autor, sTemporal);        
+
+		printf("\nEl Libro ha sido modificado correctamente.\n\n");
+	
+	} 
+ 
+	system("pause");   
+	
+}  		   
+
