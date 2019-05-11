@@ -2156,3 +2156,330 @@ void ordenar_prestamos (Prestamo mis_prestamos[])
 
 }
 
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION DEVOLUCION_LIBRO                       **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_PRESTAMOS
+//
+//
+// 0) Captura de la fecha actual del sistema para almacenarla en el campo 'fecha_devolución'
+//
+// 1) Búsqueda de Usuario:
+//     Se invoca a la función 'busqueda_usuarios' para localizar el usuario al que se prestará el libro --> se introduce el criterio de búsqueda y saca listado de usuarios.
+//     Si hay algún usuario que cumpla con los requisitos de búsqueda... se hace un bucle DO-WHILE hasta que se introduzca un 'num_usuario' que exista en la estructura de usuarios
+//     Una vez localizado el usuario al que prestar el libro, se muestra mensaje con los datos del usuario.
+//
+// 2) Búsqueda de Libro:
+//     Se invoca a la función 'busqueda_libros' para localizar el libro que se prestará el libro --> se introduce el criterio de búsqueda y saca listado de libros.
+//     Si hay algún libro que cumpla con los requisitos de búsqueda... se hace un bucle DO-WHILE hasta que se introduzca un 'num_libro' que exista en la estructura de libros
+//     Una vez localizado el libro que se prestará, se muestra mensaje con los datos del libro.
+//
+// 3) Recorrido de la estructura de PRESTAMOS para buscar el prestamo:
+//     La condición para encontrar el préstamo buscado es que coincida el DNI del usuario, el ISBN del libro y el libro todavía esté prestado (fecha_devolucion = 'NO DEVUELTO')
+//     Si encuentra el préstamo, pone la fecha actual en la fecha_devolucion y muestra mensaje
+//     En caso contrario (no se ha encontrado el préstamo tras recorres la estructura de PRESTAMOS), se indica con un mensaje
+//
+void devolucion_libro(Usuario mis_usuarios[], Libro mis_libros[], Prestamo mis_prestamos[])
+{   
+
+	// iContadorUsuarios se usa para hacer el recorrido por el vector de USUARIOS hasta encontrar al seleccionado
+	// iContadorLibros se usa para hacer el recorrido por el vector de LIBROS hasta encontrar al seleccionado	
+    int iContadorUsuarios, iContadorLibros, iMaxRegistros;
+	char sTemporal[100];
+	int num_usuario, num_libro;
+	// iResultado se usa para almacenar lo que devuelven las funciones 'busqueda_usuarios' y 'busqueda_libros'
+	// valor = 0 significa que se ha encontrado al menos un registro que cumple con la condición; valor = 1 significa lo contrario
+	int iResultado;
+
+	// Variables de <time.h> para obtener la hora del sistema
+  	time_t t;
+   	struct tm *tm;
+   	// fechayhora = fecha actual del sistema, que se copia en fecha_devolucion
+   	// fechayhoradevolucion = fecha actual menos 14 días, para ver si se ha devuelto a tiempo o retrasado
+   	// fechayhoraprestamo = fecha del prestamo
+   	char fechayhora[100], fechayhoradevolucion[100], fechayhoraprestamo[100];
+
+	// se obtiene la hora del sistema
+   	t=time(NULL);
+   	tm=localtime(&t);
+   	// se copia en 'fechayhora' la fecha actual del sistema, como cadena de caracteres
+   	strftime(fechayhora, 100, "%d/%m/%Y", tm);
+   	
+   	// resta 1.209.600 segundos, es decir, 14 días a la fecha actual del sistema  
+	t = t - 1209600;
+	tm=localtime(&t);
+   	strftime(fechayhoradevolucion, 100, "%Y/%m/%d", tm); 
+	
+	// Invoca a la función 'busqueda_usuarios' para mostrar un listado de todos los usuarios que cumplen una condición (nombre o apellido contiene un literal introducido por teclado)
+	iResultado = busqueda_usuarios(mis_usuarios);
+	
+	// tan solo se accede al registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+		// Recorrido de la estructura de USUARIOS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_usuarios[iMaxRegistros].DNI,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a modificar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Usuario a buscar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_usuario);
+    		printf("\n");
+ 	 		// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iContadorUsuarios = 0 ; (mis_usuarios[iContadorUsuarios].num_usuario != num_usuario) && (iContadorUsuarios <= iMaxRegistros ); iContadorUsuarios++);
+			if (iContadorUsuarios > iMaxRegistros)
+				printf("\nNo existe el Usuario %d.\n\n", num_usuario);			
+		} while (iContadorUsuarios > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro
+
+			
+		printf("\nSe va a devolver un Prestamo realizado al Usuario %s %s %s.\n\n", mis_usuarios[iContadorUsuarios].DNI, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido);
+	
+	}
+	
+	system("pause");
+
+	// Invoca a la función 'busqueda_libros' para mostrar un listado de todos los libros que cumplen una condición (titulo, genero o autor contiene un literal introducido por teclado)	
+	iResultado = busqueda_libros(mis_libros);
+	
+	// tan solo se modifica un registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+	    // Recorrido de la estructura de LIBROS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_libros[iMaxRegistros].ISBN,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a modificar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Libro a buscar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_libro);
+    		printf("\n");
+ 	
+ 			// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iContadorLibros = 0 ; (mis_libros[iContadorLibros].num_libro != num_libro) && (iContadorLibros <= iMaxRegistros ); iContadorLibros++);
+			if (iContadorLibros > iMaxRegistros)
+				printf("\nNo existe el Libro %d.\n\n", num_libro);				
+		
+		} while (iContadorLibros > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro     
+
+		printf("\nEl Libro a devolver es %s %s.\n\n", mis_libros[iContadorLibros].ISBN, mis_libros[iContadorLibros].titulo);
+	
+	} 
+	
+	// en este punto ya se tiene seleccionado en 'iContadorUsuarios' y 'iContadorLibros' los registros de usuario y libro que se va a devolver
+
+	system("pause");
+
+    system("cls");
+    printf("\n__________________BIBLIOTECA DE LA ETSIDI__________________________\n\n");		
+    printf("\n___________________ DEVOLUCION DE LIBROS___________________________\n\n");
+    
+    // Recorrido de la estructura de PRESTAMOS para buscar el prestamo
+	for(iMaxRegistros = 0 ; (strcmp(mis_prestamos[iMaxRegistros].DNI,"") !=0) ; iMaxRegistros++)
+	{
+		// paramos la búsqueda si se encuentra el usuario, el libro y el libro no está devuelto (en fecha_devolucion tiene el valor 'NO DEVUELTO') ...
+		if ( (strcmp(mis_prestamos[iMaxRegistros].DNI,mis_usuarios[iContadorUsuarios].DNI) ==0) && (strcmp(mis_prestamos[iMaxRegistros].ISBN,mis_libros[iContadorLibros].ISBN) ==0) && (strcmp(mis_prestamos[iMaxRegistros].fecha_devolucion,"NO DEVUELTO") ==0))
+		{
+			strcpy(mis_prestamos[iMaxRegistros].fecha_devolucion, fechayhora);
+			fechayhoraprestamo[0]=mis_prestamos[iMaxRegistros].fecha_prestamo[6];
+			fechayhoraprestamo[1]=mis_prestamos[iMaxRegistros].fecha_prestamo[7];
+			fechayhoraprestamo[2]=mis_prestamos[iMaxRegistros].fecha_prestamo[8];
+			fechayhoraprestamo[3]=mis_prestamos[iMaxRegistros].fecha_prestamo[9];						
+			fechayhoraprestamo[4]='/';
+			fechayhoraprestamo[5]=mis_prestamos[iMaxRegistros].fecha_prestamo[3];
+			fechayhoraprestamo[6]=mis_prestamos[iMaxRegistros].fecha_prestamo[4];
+			fechayhoraprestamo[7]='/';
+			fechayhoraprestamo[8]=mis_prestamos[iMaxRegistros].fecha_prestamo[0];
+			fechayhoraprestamo[9]=mis_prestamos[iMaxRegistros].fecha_prestamo[1];
+			fechayhoraprestamo[10]='\0';
+			if (strcmp(fechayhoradevolucion,fechayhoraprestamo)>0)
+				printf("\nEl Libro se presto el dia %s y se ha devuelto el dia %s, superando los 14 dias de prestamo por lo que tendra penalizacion de 1 euro.\n\n", mis_prestamos[iMaxRegistros].fecha_prestamo, mis_prestamos[iMaxRegistros].fecha_devolucion);				
+			printf("\nLa Devolucion del Libro '%s' prestado a '%s %s' ha sido realizada correctamente.\n\n", mis_libros[iContadorLibros].titulo, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido);
+			break;
+		}
+	}
+
+	// Si el DNI está vacío es porque hemos llegado al final del recorrido SIN encontrar el préstamo buscado (ese usuario, ese libro y NO DEVUELTO)
+	if (strcmp(mis_prestamos[iMaxRegistros].DNI,"") ==0)
+	{
+		printf("\nNO existe el Prestamo del Libro '%s' a '%s %s'.\n\n", mis_libros[iContadorLibros].titulo, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido);
+	}
+	
+	system("pause");	
+
+}
+
+
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION CONSULTA_PRESTAMOS_LIBRO               **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_PRESTAMOS
+// Muestra todos los préstamos realizados a un libro (actuales o pasados)
+//
+// Pasos a seguir:
+//    1) Invoca a la función 'busqueda_libros' para mostrar un listado de todos los libros que cumplen una condición (titulo, genero o autor contiene un literal introducido por teclado)
+//    2) Solo pide el número de un libro si se ha encontrado algún registro que cumplan la condición (iResultado = 0)
+//    3) Recorrido de la estructura de LIBROS para determinar el número de registros
+//    4) Bucle DO-WHILE mientras que no se encuentra el libro
+//    5) Recorrido de la estructura de PRESTAMOS para buscar el prestamo
+//       5.1) Recorrido de la estructura de USUARIOS para encontrar el usuario al que se le ha prestado el libro  --> es para tener los datos de nombre + apellido de usuario (además del DNI)
+//       5.2) Recorrido de la estructura de LIBROS para encontrar el libro prestado --> es para tener el dato del título del libro (además del ISBN)
+//       5.3) Imprime una fila por cada vez que el libro ha sido prestado con todos sus datos, algunos sacados de USUARIOS y LIBROS  --> num_prestamo, DNI, nombre, apellido, ISBN, titulo, fecha prestamo, fecha devolucion
+//
+void consulta_prestamos_libro(Usuario mis_usuarios[], Libro mis_libros[], Prestamo mis_prestamos[])
+{   
+	// iContadorUsuarios se usa para hacer el recorrido por el vector de USUARIOS hasta encontrar al seleccionado
+	// iContadorLibros se usa para hacer el recorrido por el vector de LIBROS hasta encontrar al seleccionado	
+    int iContadorUsuarios, iContadorLibros, iMaxRegistros;
+	int num_usuario, num_libro;
+	// iResultado se usa para almacenar lo que devuelven las funciones 'busqueda_usuarios' y 'busqueda_libros'
+	// valor = 0 significa que se ha encontrado al menos un registro que cumple con la condición; valor = 1 significa lo contrario	
+	int iResultado;   	
+
+	// Invoca a la función 'busqueda_libros' para mostrar un listado de todos los libros que cumplen una condición (titulo, genero o autor contiene un literal introducido por teclado)	
+	iResultado = busqueda_libros(mis_libros);
+	
+	// tan solo se accede al registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+	    // Recorrido de la estructura de LIBROS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_libros[iMaxRegistros].ISBN,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a modificar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Libro a buscar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_libro);
+    		printf("\n");
+ 	
+ 			// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iContadorLibros = 0 ; (mis_libros[iContadorLibros].num_libro != num_libro) && (iContadorLibros <= iMaxRegistros ); iContadorLibros++);
+			if (iContadorLibros > iMaxRegistros)
+			{
+				printf("\nNo existe el Libro %d.\n\n", num_libro);
+				system("pause");
+			}
+				
+		} while (iContadorLibros > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro     
+
+	} 
+
+    system("cls");
+    printf("\n__________________BIBLIOTECA DE LA ETSIDI__________________________\n\n");		
+    printf("\n_______________CONSULTA PRESTAMOS DE UN LIBRO______________________\n\n");
+    
+	printf("\n   # %-11s %-15s %-25s %-15s %-35s %-25s %-15s","DNI", "NOMBRE","APELLIDO", "ISBN", "TITULO", "FECHA PRESTAMO", "FECHA DEVOLUCION");
+	printf("\n   _ ___         ______          ________                  ____            ______                              _____________             ________________\n");	    
+    
+    // Recorrido de la estructura de PRESTAMOS para buscar el prestamo
+	for(iMaxRegistros = 0 ; (strcmp(mis_prestamos[iMaxRegistros].DNI,"") !=0) ; iMaxRegistros++)
+	{
+		// Si en el recorrido se encuentra el registro buscado...
+		if ( (strcmp(mis_prestamos[iMaxRegistros].ISBN,mis_libros[iContadorLibros].ISBN) ==0) )
+		{
+			// Recorrido de la estructura de USUARIOS para encontrar el usuario al que se le ha prestado el libro
+			for(iContadorUsuarios = 0 ; (strcmp(mis_usuarios[iContadorUsuarios].DNI, mis_prestamos[iMaxRegistros].DNI) !=0) ; iContadorUsuarios++);
+			// Recorrido de la estructura de LIBROS para encontrar el libro prestado
+			for(iContadorLibros = 0 ; (strcmp(mis_libros[iContadorLibros].ISBN, mis_prestamos[iMaxRegistros].ISBN) !=0) ; iContadorLibros++);
+			// Imprime una fila por cada vez que el libro ha sido prestado con todos sus datos, algunos sacados de USUARIOS y LIBROS
+			printf("\n%4d %-11s %-15s %-25s %-15s %-35s %-25s %-15s", mis_prestamos[iMaxRegistros].num_prestamo, mis_prestamos[iMaxRegistros].DNI, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido, 
+				 													mis_prestamos[iMaxRegistros].ISBN, mis_libros[iContadorLibros].titulo, mis_prestamos[iMaxRegistros].fecha_prestamo, mis_prestamos[iMaxRegistros].fecha_devolucion);
+		}
+	}
+
+	printf("\n\n");
+	
+	system("pause");
+
+}
+
+//***********************************************************
+//**                                                       **
+//**        FUNCION CONSULTA_PRESTAMOS_USUARIO             **
+//**                                                       **
+//***********************************************************
+//
+// Esta función es invocada desde MENU_PRESTAMOS
+// Muestra todos los préstamos realizados a un usuario (actuales o pasados)
+//
+// Pasos a seguir:
+//    1) Invoca a la función 'busqueda_usuarios' para mostrar un listado de todos los usuarios que cumplen una condición (nombre o apellido contiene un literal introducido por teclado)
+//    2) Solo pide el número de un usuario si se ha encontrado algún registro que cumplan la condición (iResultado = 0)
+//    3) Recorrido de la estructura de USUARIOS para determinar el número de registros
+//    4) Bucle DO-WHILE mientras que no se encuentra el usuario
+//    5) Recorrido de la estructura de PRESTAMOS para buscar el prestamo
+//       5.1) Recorrido de la estructura de USUARIOS para encontrar el usuario al que se le ha prestado el libro  --> es para tener los datos de nombre + apellido de usuario (además del DNI)
+//       5.2) Recorrido de la estructura de LIBROS para encontrar el libro prestado --> es para tener el dato del título del libro (además del ISBN)
+//       5.3) Imprime una fila por cada vez que el libro ha sido prestado con todos sus datos, algunos sacados de USUARIOS y LIBROS  --> num_prestamo, DNI, nombre, apellido, ISBN, titulo, fecha prestamo, fecha devolucion
+//
+void consulta_prestamos_usuario(Usuario mis_usuarios[], Libro mis_libros[], Prestamo mis_prestamos[])
+{   
+    int iContadorUsuarios, iContadorLibros, iMaxRegistros;
+	char sTemporal[100];
+	int num_usuario, num_libro;
+	int iResultado;   	
+	
+	iResultado = busqueda_usuarios(mis_usuarios);
+	
+	// tan solo se accede al registro si se ha encontrado alguno que cumpla con el criterio de búsqueda
+	if (iResultado == 0)
+	{
+		// Recorrido de la estructura de USUARIOS para determinar el número de registros
+		for(iMaxRegistros = 0 ; (strcmp(mis_usuarios[iMaxRegistros].DNI,"") !=0) ; iMaxRegistros++);	 	
+
+		// El numero de registro a modificar debe existir por lo que se hace bucle DO...WHILE hasta que se proporciona un número de registro válido
+		do {
+			// Se pide el numero de registro a modificar
+			printf("\nIntroduzca el numero de registro del Usuario a buscar: ");
+    		fflush(stdin);        	
+    		scanf("%d", &num_usuario);
+    		printf("\n");
+ 	 		// Se hace un recorrido por la estructura para localizarlo... hasta que se encuentra o finalizamos el recorrido sin encontrarlo
+			for(iContadorUsuarios = 0 ; (mis_usuarios[iContadorUsuarios].num_usuario != num_usuario) && (iContadorUsuarios <= iMaxRegistros ); iContadorUsuarios++);
+			if (iContadorUsuarios > iMaxRegistros)
+				printf("\nNo existe el Usuario %d.\n\n", num_usuario);			
+		} while (iContadorUsuarios > iMaxRegistros);  // sólo se termina el bucle si el contador no indica que se ha recorrido la estructura sin encontrar el registro
+
+			
+		printf("\nSe va a devolver un Prestamo realizado al Usuario %s %s %s.\n\n", mis_usuarios[iContadorUsuarios].DNI, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido);
+	
+	}
+
+    system("cls");
+    printf("\n__________________BIBLIOTECA DE LA ETSIDI__________________________\n\n");		
+    printf("\n_______________CONSULTA PRESTAMOS DE UN USUARIO____________________\n\n");
+    
+	printf("\n   # %-11s %-15s %-25s %-15s %-35s %-25s %-15s","DNI", "NOMBRE","APELLIDO", "ISBN", "TITULO", "FECHA PRESTAMO", "FECHA DEVOLUCION");
+	printf("\n   _ ___         ______          ________                  ____            ______                              _____________             ________________\n");	    
+    
+    // Recorrido de la estructura de PRESTAMOS para buscar el prestamo
+	for(iMaxRegistros = 0 ; (strcmp(mis_prestamos[iMaxRegistros].DNI,"") !=0) ; iMaxRegistros++)
+	{
+		// paramos la búsqueda si se encuentra el usuario, el libro y el libro no está prestado...
+		if ( (strcmp(mis_prestamos[iMaxRegistros].DNI,mis_usuarios[iContadorUsuarios].DNI) ==0) )
+		{
+			// Recorrido de la estructura de USUARIOS para encontrar el usuario al que se le ha prestado el libro
+			for(iContadorUsuarios = 0 ; (strcmp(mis_usuarios[iContadorUsuarios].DNI, mis_prestamos[iMaxRegistros].DNI) !=0) ; iContadorUsuarios++);
+			// Recorrido de la estructura de LIBROS para encontrar el libro prestado
+			for(iContadorLibros = 0 ; (strcmp(mis_libros[iContadorLibros].ISBN, mis_prestamos[iMaxRegistros].ISBN) !=0) ; iContadorLibros++);
+			printf("\n%4d %-11s %-15s %-25s %-15s %-35s %-25s %-15s", mis_prestamos[iMaxRegistros].num_prestamo, mis_prestamos[iMaxRegistros].DNI, mis_usuarios[iContadorUsuarios].nombre, mis_usuarios[iContadorUsuarios].apellido, 
+				 													mis_prestamos[iMaxRegistros].ISBN, mis_libros[iContadorLibros].titulo, mis_prestamos[iMaxRegistros].fecha_prestamo, mis_prestamos[iMaxRegistros].fecha_devolucion);
+		}
+	}
+
+	printf("\n\n");
+	
+	system("pause");
+
+}
